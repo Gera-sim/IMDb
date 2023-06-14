@@ -49,14 +49,10 @@ class MoviesActivity : Activity() {
         if (clickDebounce()) {
             val intent = Intent(this, PosterActivity::class.java)
             intent.putExtra("poster", it.image)
-            startActivity(intent)
-        }
-    }
+            startActivity(intent)}}
 
     private var isClickAllowed = true
-
     private val handler = Handler(Looper.getMainLooper())
-
     private val searchRunnable = Runnable { searchRequest() }
 
 
@@ -83,10 +79,7 @@ class MoviesActivity : Activity() {
             }
 
             override fun afterTextChanged(p0: Editable?) {
-            }
-
-        })
-    }
+            }})}
 
     override fun onDestroy() {
         super.onDestroy()
