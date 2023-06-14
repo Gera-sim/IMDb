@@ -1,5 +1,6 @@
-package com.example.imdbwitharch.data
+package com.example.imdbwitharch.domain.impl
 
+import com.example.imdbwitharch.data.NetworkClient
 import com.example.imdbwitharch.data.dto.MoviesSearchRequest
 import com.example.imdbwitharch.data.dto.MoviesSearchResponse
 import com.example.imdbwitharch.domain.api.MoviesRepository
