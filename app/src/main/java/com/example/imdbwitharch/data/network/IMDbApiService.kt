@@ -1,5 +1,6 @@
-package com.example.imdbwitharch
+package com.example.imdbwitharch.data.network
 
+import com.example.imdbwitharch.data.dto.MoviesSearchResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

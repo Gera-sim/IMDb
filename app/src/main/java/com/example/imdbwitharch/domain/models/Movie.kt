@@ -1,4 +1,4 @@
-package com.example.imdbwitharch
+package com.example.imdbwitharch.domain.models
 
 data class Movie(val id: String,
                  val resultType: String,

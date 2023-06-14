@@ -1,7 +1,8 @@
-package com.example.imdbwitharch
+package com.example.imdbwitharch.ui.movies
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.imdbwitharch.domain.models.Movie
 
 class MoviesAdapter(private val clickListener: MovieClickListener) : RecyclerView.Adapter<MovieViewHolder>() {
 

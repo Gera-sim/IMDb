@@ -1,4 +1,4 @@
-package com.example.imdbwitharch
+package com.example.imdbwitharch.ui.movies
 
 import android.app.Activity
 import android.content.Intent
@@ -11,6 +11,11 @@ import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.imdbwitharch.PosterActivity
+import com.example.imdbwitharch.R
+import com.example.imdbwitharch.data.dto.MoviesSearchResponse
+import com.example.imdbwitharch.data.network.IMDbApiService
+import com.example.imdbwitharch.domain.models.Movie
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
