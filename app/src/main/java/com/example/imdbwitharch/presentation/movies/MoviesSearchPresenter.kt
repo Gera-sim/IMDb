@@ -7,6 +7,7 @@ import com.example.imdbwitharch.util.Creator
 import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.models.Movie
+import com.example.imdbwitharch.ui.models.MoviesState
 
 class MoviesSearchPresenter(
     private val view: MoviesView,
@@ -42,56 +43,48 @@ class MoviesSearchPresenter(
 
     private fun searchRequest(newSearchText: String) {
         if (newSearchText.isNotEmpty()) {
-            view.showPlaceholderMessage(false)
-            view.showMoviesList(false)
-            view.showProgressBar(true)
+            view.render(
+                MoviesState.Loading
+            )
 
             moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
                 override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
                     handler.post {
-                        view.showProgressBar(false)
                         if (foundMovies != null) {
-
-                            // Обновляем список на экране
                             movies.clear()
                             movies.addAll(foundMovies)
-                            view.updateMoviesList(movies)
-                            view.showMoviesList(true)
                         }
-                        if (errorMessage != null) {
-                            showMessage(
-                                context.getString(R.string.something_went_wrong),
-                                errorMessage
-                            )
-                        } else if (movies.isEmpty()) {
-                            showMessage(context.getString(R.string.nothing_found), "")
-                        } else {
-                            hideMessage()
+
+                        when {
+                            errorMessage != null -> {
+                                view.render(
+                                    MoviesState.Error(
+                                        errorMessage = context.getString(R.string.something_went_wrong),
+                                    )
+                                )
+                                view.showToast(errorMessage)
+                            }
+
+                            movies.isEmpty() -> {
+                                view.render(
+                                    MoviesState.Empty(
+                                        message = context.getString(R.string.nothing_found),
+                                    )
+                                )
+                            }
+
+                            else -> {
+                                view.render(
+                                    MoviesState.Content(
+                                        movies = movies,
+                                    )
+                                )
+                            }
                         }
+
                     }
                 }
             })
         }
-    }
-
-    private fun showMessage(text: String, additionalMessage: String) {
-        if (text.isNotEmpty()) {
-            view.showPlaceholderMessage(true)
-            movies.clear()
-            view.updateMoviesList(movies)
-            view.changePlaceholderText(text)
-            if (additionalMessage.isNotEmpty()) {
-                // Добавили метод показа Toast
-                view.showToast(additionalMessage)
-            }
-        } else {
-            view.showPlaceholderMessage(false)
-        }
-    }
-
-    private fun hideMessage() {
-        // Заменили работу с элементами UI на
-        // вызовы методов интерфейса
-        view.showPlaceholderMessage(false)
     }
 }
