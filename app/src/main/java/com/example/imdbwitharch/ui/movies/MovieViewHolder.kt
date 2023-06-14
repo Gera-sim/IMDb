@@ -12,7 +12,8 @@ import com.example.imdbwitharch.domain.models.Movie
 class MovieViewHolder(parent: ViewGroup) :
     RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context)
-        .inflate(R.layout.list_item_movie, parent, false)) {
+            .inflate(R.layout.list_item_movie, parent, false)
+    ) {
 
     var cover: ImageView = itemView.findViewById(R.id.cover)
     var title: TextView = itemView.findViewById(R.id.title)

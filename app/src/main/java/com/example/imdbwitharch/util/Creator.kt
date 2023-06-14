@@ -13,10 +13,21 @@ import com.example.imdbwitharch.ui.poster.PosterView
 
 object Creator {
     private fun getMoviesRepository(context: Context): MoviesRepository {
-        return MoviesRepositoryImpl(RetrofitNetworkClient(context))}
+        return MoviesRepositoryImpl(RetrofitNetworkClient(context))
+    }
+
     fun provideMoviesInteractor(context: Context): MoviesInteractor {
-        return MoviesInteractorImpl(getMoviesRepository(context))}
-    fun provideMoviesSearchPresenter(moviesView: MoviesView, context: Context): MoviesSearchPresenter {
-        return MoviesSearchPresenter(view = moviesView, context = context)}
+        return MoviesInteractorImpl(getMoviesRepository(context))
+    }
+
+    fun provideMoviesSearchPresenter(
+        moviesView: MoviesView,
+        context: Context
+    ): MoviesSearchPresenter {
+        return MoviesSearchPresenter(view = moviesView, context = context)
+    }
+
     fun providePosterPresenter(posterView: PosterView, imageUrl: String): PosterPresenter {
-        return PosterPresenter(posterView, imageUrl)}}
+        return PosterPresenter(posterView, imageUrl)
+    }
+}

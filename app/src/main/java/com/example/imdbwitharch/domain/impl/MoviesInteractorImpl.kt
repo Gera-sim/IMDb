@@ -1,11 +1,9 @@
 package com.example.imdbwitharch.domain.impl
 
-
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.api.MoviesRepository
 import com.example.imdbwitharch.util.Resource
 import java.util.concurrent.Executors
-
 
 class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInteractor {
 

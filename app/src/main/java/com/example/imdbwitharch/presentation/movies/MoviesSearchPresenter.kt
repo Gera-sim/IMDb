@@ -8,15 +8,19 @@ import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.models.Movie
 
-class MoviesSearchPresenter(private val view: MoviesView,
-                            private val context: Context) {
+class MoviesSearchPresenter(
+    private val view: MoviesView,
+    private val context: Context
+) {
 
     private val moviesInteractor = Creator.provideMoviesInteractor(context)
     private val handler = Handler(Looper.getMainLooper())
+
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private val SEARCH_REQUEST_TOKEN = Any()
     }
+
     private val movies = ArrayList<Movie>()
 
     private var lastSearchText: String? = null
@@ -26,7 +30,7 @@ class MoviesSearchPresenter(private val view: MoviesView,
         searchRequest(newSearchText)
     }
 
-        fun onDestroy() {
+    fun onDestroy() {
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
 
@@ -55,12 +59,20 @@ class MoviesSearchPresenter(private val view: MoviesView,
                             view.showMoviesList(true)
                         }
                         if (errorMessage != null) {
-                            showMessage(context.getString(R.string.something_went_wrong), errorMessage)
+                            showMessage(
+                                context.getString(R.string.something_went_wrong),
+                                errorMessage
+                            )
                         } else if (movies.isEmpty()) {
                             showMessage(context.getString(R.string.nothing_found), "")
                         } else {
                             hideMessage()
-                        }}}})}}
+                        }
+                    }
+                }
+            })
+        }
+    }
 
     private fun showMessage(text: String, additionalMessage: String) {
         if (text.isNotEmpty()) {
@@ -81,4 +93,5 @@ class MoviesSearchPresenter(private val view: MoviesView,
         // Заменили работу с элементами UI на
         // вызовы методов интерфейса
         view.showPlaceholderMessage(false)
-    }}
+    }
+}
