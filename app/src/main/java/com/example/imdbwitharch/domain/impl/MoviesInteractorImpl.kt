@@ -1,8 +1,11 @@
 package com.example.imdbwitharch.domain.impl
 
+
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.api.MoviesRepository
+import com.example.imdbwitharch.util.Resource
 import java.util.concurrent.Executors
+
 
 class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInteractor {
 
@@ -10,7 +13,12 @@ class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInt
 
     override fun searchMovies(expression: String, consumer: MoviesInteractor.MoviesConsumer) {
         executor.execute {
-            consumer.consume(repository.searchMovies(expression))
+            when(val resource = repository.searchMovies(expression)) {
+                is Resource.Success -> {
+                    resource.data?.let { consumer.consume(it, null) }
+                }
+                is Resource.Error -> { consumer.consume(null, resource.message) }
+            }
         }
     }
 }
