@@ -2,7 +2,7 @@ package com.example.imdbwitharch.util
 
 import android.app.Activity
 import android.content.Context
-import com.example.imdbwitharch.PosterController
+import com.example.imdbwitharch.presentation.PosterController
 import com.example.imdbwitharch.data.MoviesRepositoryImpl
 import com.example.imdbwitharch.data.network.RetrofitNetworkClient
 import com.example.imdbwitharch.domain.api.MoviesInteractor
