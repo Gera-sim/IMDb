@@ -21,19 +21,17 @@ class RetrofitNetworkClient(private val context: Context) : NetworkClient {
     private val imdbService = retrofit.create(IMDbApiService::class.java)
 
     override fun doRequest(dto: Any): Response {
-        if (isConnected() == false) {
+        if (!isConnected()) {
             return Response().apply { resultCode = -1 }
         }
-        if (dto !is MoviesSearchRequest) {
-            return Response().apply { resultCode = 400 }
-        }
+        return if (dto is MoviesSearchRequest) {
+            val resp = imdbService.searchMovies(dto.expression).execute()
 
-        val response = imdbService.searchMovies(dto.expression).execute()
-        val body = response.body()
-        return if (body != null) {
-            body.apply { resultCode = response.code() }
+            val body = resp.body() ?: Response()
+
+            body.apply { resultCode = resp.code() }
         } else {
-            Response().apply { resultCode = response.code() }
+            Response().apply { resultCode = 400 }
         }
     }
 

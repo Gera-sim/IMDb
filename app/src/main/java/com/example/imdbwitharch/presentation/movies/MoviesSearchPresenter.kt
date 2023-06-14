@@ -3,6 +3,7 @@ package com.example.imdbwitharch.presentation.movies
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import com.example.imdbwitharch.util.Creator
 import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.api.MoviesInteractor
@@ -21,24 +22,21 @@ class MoviesSearchPresenter(
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private val SEARCH_REQUEST_TOKEN = Any()
     }
-
     private val movies = ArrayList<Movie>()
-
-    private var lastSearchText: String? = null
-
-    private val searchRunnable = Runnable {
-        val newSearchText = lastSearchText ?: ""
-        searchRequest(newSearchText)
-    }
 
     fun onDestroy() {
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
 
     fun searchDebounce(changedText: String) {
-        this.lastSearchText = changedText
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
+        val searchRunnable = Runnable { searchRequest(changedText) }
+        val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
+        handler.postAtTime(
+            searchRunnable,
+            SEARCH_REQUEST_TOKEN,
+            postTime,
+        )
     }
 
     private fun searchRequest(newSearchText: String) {

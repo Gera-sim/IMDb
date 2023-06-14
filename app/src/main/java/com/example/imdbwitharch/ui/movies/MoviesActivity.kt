@@ -11,12 +11,14 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.imdbwitharch.util.Creator
 import com.example.imdbwitharch.ui.poster.PosterActivity
 import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.models.Movie
+import com.example.imdbwitharch.presentation.movies.MoviesSearchPresenter
 import com.example.imdbwitharch.presentation.movies.MoviesView
 import com.example.imdbwitharch.ui.models.MoviesState
 
@@ -34,58 +36,7 @@ class MoviesActivity : Activity(), MoviesView {
         }
     }
 
-    private var isClickAllowed = true
-    private val handler = Handler(Looper.getMainLooper())
-    private val moviesSearchPresenter = Creator.provideMoviesSearchPresenter(
-        moviesView = this,
-        context = this            )
-
-    private fun clickDebounce() : Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current    }
-
-    private lateinit var queryInput: EditText
-    private lateinit var placeholderMessage: TextView
-    private lateinit var moviesList: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private var textWatcher: TextWatcher? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_movies)
-
-        placeholderMessage = findViewById(R.id.placeholderMessage)
-        queryInput = findViewById(R.id.queryInput)
-        moviesList = findViewById(R.id.locations)
-        progressBar = findViewById(R.id.progressBar)
-
-        moviesList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        moviesList.adapter = adapter
-
-
-          textWatcher = object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    moviesSearchPresenter.searchDebounce(
-                        changedText = s?.toString() ?: ""
-                    )}
-
-                override fun afterTextChanged(s: Editable?) {
-                }}
-                    textWatcher?.let { queryInput.addTextChangedListener(it) }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        textWatcher?.let { queryInput.removeTextChangedListener(it) }
-        moviesSearchPresenter.onDestroy()
-    }
+    private var moviesSearchPresenter : MoviesSearchPresenter? = null
 
     override fun render(state: MoviesState) {
         when (state) {
@@ -96,28 +47,25 @@ class MoviesActivity : Activity(), MoviesView {
         }
     }
 
-    override fun showToast(additionalMessage: String) {
-        TODO("Not yet implemented")
-    }
-
-    fun showLoading() {
+    private fun showLoading() {
         moviesList.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
     }
 
-    fun showError(errorMessage: String) {
+    private fun showError(errorMessage: String) {
         moviesList.visibility = View.GONE
         placeholderMessage.visibility = View.VISIBLE
         progressBar.visibility = View.GONE
+
         placeholderMessage.text = errorMessage
     }
 
-    fun showEmpty(emptyMessage: String) {
+    private fun showEmpty(emptyMessage: String) {
         showError(emptyMessage)
     }
 
-    fun showContent(movies: List<Movie>) {
+    private fun showContent(movies: List<Movie>) {
         moviesList.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
         progressBar.visibility = View.GONE
@@ -125,5 +73,75 @@ class MoviesActivity : Activity(), MoviesView {
         adapter.movies.clear()
         adapter.movies.addAll(movies)
         adapter.notifyDataSetChanged()
+    }
+
+    override fun showToast(additionalMessage: String) {
+        Toast.makeText(this, additionalMessage, Toast.LENGTH_LONG).show()
+    }
+
+    private var isClickAllowed = true
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    private lateinit var queryInput: EditText
+    private lateinit var placeholderMessage: TextView
+    private lateinit var moviesList: RecyclerView
+    private lateinit var progressBar: ProgressBar
+
+    private var textWatcher: TextWatcher? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_movies)
+
+        moviesSearchPresenter = lastNonConfigurationInstance as? MoviesSearchPresenter
+        if (moviesSearchPresenter == null) {
+            moviesSearchPresenter = Creator.provideMoviesSearchPresenter(
+                moviesView = this,
+                context = this,
+            )
+        }
+
+        placeholderMessage = findViewById(R.id.placeholderMessage)
+        queryInput = findViewById(R.id.queryInput)
+        moviesList = findViewById(R.id.locations)
+        progressBar = findViewById(R.id.progressBar)
+
+        moviesList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        moviesList.adapter = adapter
+
+        textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                moviesSearchPresenter?.searchDebounce(
+                    changedText = s?.toString() ?: ""
+                )
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        }
+        textWatcher?.let { queryInput.addTextChangedListener(it) }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        textWatcher?.let { queryInput.removeTextChangedListener(it) }
+        moviesSearchPresenter?.onDestroy()
+    }
+
+    override fun onRetainNonConfigurationInstance(): Any? {
+        return moviesSearchPresenter
+    }
+
+    private fun clickDebounce() : Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
     }
 }
