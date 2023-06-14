@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import com.example.imdbwitharch.util.Creator
-import com.example.imdbwitharch.PosterActivity
+import com.example.imdbwitharch.ui.poster.PosterActivity
 import com.example.imdbwitharch.R
 
 class MoviesActivity : Activity() {

@@ -1,8 +1,9 @@
-package com.example.imdbwitharch
+package com.example.imdbwitharch.presentation
 
 import android.app.Activity
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.example.imdbwitharch.R
 
 class PosterController(private val activity: Activity) {
 
