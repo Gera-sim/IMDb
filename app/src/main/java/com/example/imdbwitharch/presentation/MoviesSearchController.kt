@@ -12,7 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.imdbwitharch.Creator
+import com.example.imdbwitharch.util.Creator
 import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.models.Movie
@@ -22,7 +22,7 @@ class MoviesSearchController(private val activity: Activity,
                              private val adapter: MoviesAdapter
 ) {
 
-    private val moviesInteractor = Creator.provideMoviesInteractor()
+    private val moviesInteractor = Creator.provideMoviesInteractor(activity)
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
@@ -61,7 +61,6 @@ class MoviesSearchController(private val activity: Activity,
 
             override fun afterTextChanged(p0: Editable?) {
             }
-
         })
     }
 
@@ -81,26 +80,24 @@ class MoviesSearchController(private val activity: Activity,
             moviesList.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
 
-            moviesInteractor.searchMovies(
-                queryInput.text.toString(),
+            moviesInteractor.searchMovies(queryInput.text.toString(),
                 object : MoviesInteractor.MoviesConsumer {
-                    override fun consume(foundMovies: List<Movie>) {
-                        handler.post {
-                            progressBar.visibility = View.GONE
+                override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
+                    handler.post {
+                        progressBar.visibility = View.GONE
+                        if (foundMovies != null) {
                             movies.clear()
                             movies.addAll(foundMovies)
-                            moviesList.visibility = View.VISIBLE
                             adapter.notifyDataSetChanged()
-                            if (movies.isEmpty()) {
-                                showMessage(activity.getString(R.string.nothing_found), "")
-                            } else {
-                                hideMessage()
-                            }
+                            moviesList.visibility = View.VISIBLE
                         }
-                    }
-                })
-        }
-    }
+                        if (errorMessage != null) {
+                            showMessage(activity.getString(R.string.something_went_wrong), errorMessage)
+                        } else if (movies.isEmpty()) {
+                            showMessage(activity.getString(R.string.nothing_found), "")
+                        } else {
+                            hideMessage()
+                        }}}})}}
 
     private fun showMessage(text: String, additionalMessage: String) {
         if (text.isNotEmpty()) {

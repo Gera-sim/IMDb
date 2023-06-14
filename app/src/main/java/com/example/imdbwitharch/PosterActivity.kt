@@ -2,6 +2,7 @@ package com.example.imdbwitharch
 
 import android.app.Activity
 import android.os.Bundle
+import com.example.imdbwitharch.util.Creator
 
 class PosterActivity : Activity() {
 

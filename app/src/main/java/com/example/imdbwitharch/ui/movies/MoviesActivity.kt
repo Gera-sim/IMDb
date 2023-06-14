@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import com.example.imdbwitharch.Creator
+import com.example.imdbwitharch.util.Creator
 import com.example.imdbwitharch.PosterActivity
 import com.example.imdbwitharch.R
 
