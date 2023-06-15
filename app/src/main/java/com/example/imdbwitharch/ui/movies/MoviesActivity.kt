@@ -1,6 +1,5 @@
 package com.example.imdbwitharch.ui.movies
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -21,8 +20,11 @@ import com.example.imdbwitharch.domain.models.Movie
 import com.example.imdbwitharch.presentation.movies.MoviesSearchPresenter
 import com.example.imdbwitharch.presentation.movies.MoviesView
 import com.example.imdbwitharch.ui.models.MoviesState
+import moxy.MvpActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
-class MoviesActivity : Activity(), MoviesView {
+class MoviesActivity : MvpActivity(), MoviesView {
 
     companion object {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
@@ -36,7 +38,15 @@ class MoviesActivity : Activity(), MoviesView {
         }
     }
 
-    private var moviesSearchPresenter : MoviesSearchPresenter? = null
+    @InjectPresenter
+    lateinit var moviesSearchPresenter: MoviesSearchPresenter
+
+    @ProvidePresenter
+    fun providePresenter(): MoviesSearchPresenter {
+        return Creator.provideMoviesSearchPresenter(
+            context = this.applicationContext,
+        )
+    }
 
     override fun render(state: MoviesState) {
         when (state) {
@@ -94,14 +104,6 @@ class MoviesActivity : Activity(), MoviesView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_movies)
 
-        moviesSearchPresenter = lastNonConfigurationInstance as? MoviesSearchPresenter
-        if (moviesSearchPresenter == null) {
-            moviesSearchPresenter = Creator.provideMoviesSearchPresenter(
-                moviesView = this,
-                context = this,
-            )
-        }
-
         placeholderMessage = findViewById(R.id.placeholderMessage)
         queryInput = findViewById(R.id.queryInput)
         moviesList = findViewById(R.id.locations)
@@ -115,7 +117,7 @@ class MoviesActivity : Activity(), MoviesView {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                moviesSearchPresenter?.searchDebounce(
+                moviesSearchPresenter.searchDebounce(
                     changedText = s?.toString() ?: ""
                 )
             }
@@ -129,10 +131,10 @@ class MoviesActivity : Activity(), MoviesView {
     override fun onDestroy() {
         super.onDestroy()
         textWatcher?.let { queryInput.removeTextChangedListener(it) }
-        moviesSearchPresenter?.onDestroy()
+        moviesSearchPresenter.onDestroy()
     }
 
-    override fun onRetainNonConfigurationInstance(): Any? {
+    override fun onRetainNonConfigurationInstance(): Any {
         return moviesSearchPresenter
     }
 

@@ -9,28 +9,34 @@ import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.models.Movie
 import com.example.imdbwitharch.ui.models.MoviesState
+import moxy.MvpPresenter
 
 class MoviesSearchPresenter(
-    private val view: MoviesView,
-    private val context: Context
-) {
-
-    private val moviesInteractor = Creator.provideMoviesInteractor(context)
-    private val handler = Handler(Looper.getMainLooper())
+    private val context: Context,
+) : MvpPresenter<MoviesView>() {
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private val SEARCH_REQUEST_TOKEN = Any()
     }
-    private val movies = ArrayList<Movie>()
 
-    fun onDestroy() {
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-    }
+    private var latestSearchText: String? = null
+
+    private val moviesInteractor = Creator.provideMoviesInteractor(context)
+    private val handler = Handler(Looper.getMainLooper())
 
     fun searchDebounce(changedText: String) {
+        if (latestSearchText == changedText) {
+            return
+        }
+
+        this.latestSearchText = changedText
+
+
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
+
         val searchRunnable = Runnable { searchRequest(changedText) }
+
         val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
         handler.postAtTime(
             searchRunnable,
@@ -41,30 +47,28 @@ class MoviesSearchPresenter(
 
     private fun searchRequest(newSearchText: String) {
         if (newSearchText.isNotEmpty()) {
-            view.render(
-                MoviesState.Loading
-            )
+            renderState(MoviesState.Loading)
 
             moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
                 override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
                     handler.post {
+                        val movies = mutableListOf<Movie>()
                         if (foundMovies != null) {
-                            movies.clear()
                             movies.addAll(foundMovies)
                         }
 
                         when {
                             errorMessage != null -> {
-                                view.render(
+                                renderState(
                                     MoviesState.Error(
                                         errorMessage = context.getString(R.string.something_went_wrong),
                                     )
                                 )
-                                view.showToast(errorMessage)
+                                viewState.showToast(errorMessage)
                             }
 
                             movies.isEmpty() -> {
-                                view.render(
+                                renderState(
                                     MoviesState.Empty(
                                         message = context.getString(R.string.nothing_found),
                                     )
@@ -72,7 +76,7 @@ class MoviesSearchPresenter(
                             }
 
                             else -> {
-                                view.render(
+                                renderState(
                                     MoviesState.Content(
                                         movies = movies,
                                     )
@@ -85,4 +89,13 @@ class MoviesSearchPresenter(
             })
         }
     }
+
+    private fun renderState(state: MoviesState) {
+        viewState.render(state)
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
+    }
+
 }
