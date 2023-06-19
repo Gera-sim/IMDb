@@ -1,17 +1,10 @@
 package com.example.imdbwitharch.presentation.movies
 
 import android.app.Application
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
+import android.os.*
+import androidx.lifecycle.*
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.viewmodel.*
 import com.example.imdbwitharch.util.Creator
 import com.example.imdbwitharch.R
 import com.example.imdbwitharch.domain.api.MoviesInteractor
@@ -25,10 +18,7 @@ class MoviesSearchViewModel(application: Application) : AndroidViewModel(applica
         private val SEARCH_REQUEST_TOKEN = Any()
 
         fun getViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                MoviesSearchViewModel(this[APPLICATION_KEY] as Application)
-            }
-        }
+            initializer {MoviesSearchViewModel(this[APPLICATION_KEY] as Application) }}
     }
 
     private val moviesInteractor = Creator.provideMoviesInteractor(getApplication())
@@ -37,22 +27,16 @@ class MoviesSearchViewModel(application: Application) : AndroidViewModel(applica
     private val stateLiveData = MutableLiveData<MoviesState>()
     fun observeState(): LiveData<MoviesState> = mediatorStateLiveData
 
-
     private val showToast = SingleLiveEvent<String>()
     fun observeShowToast(): LiveData<String> = showToast
 
     private var latestSearchText: String? = null
 
-    override fun onCleared() {
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-    }
+    override fun onCleared() {handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)}
 
     fun toggleFavorite(movie: Movie) {
-        if (movie.inFavorite) {
-            moviesInteractor.removeMovieFromFavorites(movie)
-        } else {
-            moviesInteractor.addMovieToFavorites(movie)
-        }
+        if (movie.inFavorite) {moviesInteractor.removeMovieFromFavorites(movie)}
+        else {moviesInteractor.addMovieToFavorites(movie)}
         updateMovieContent(movie.id, movie.copy(inFavorite = !movie.inFavorite))
     }
 
@@ -64,11 +48,7 @@ class MoviesSearchViewModel(application: Application) : AndroidViewModel(applica
                 stateLiveData.value = MoviesState.Content(
                     currentState.movies.toMutableList().also {
                         it[movieIndex] = newMovie
-                    }
-                )
-            }
-        }
-    }
+                    })}}}
 
     private val mediatorStateLiveData = MediatorLiveData<MoviesState>().also { liveData ->
         liveData.addSource(stateLiveData) { movieState ->
@@ -77,16 +57,10 @@ class MoviesSearchViewModel(application: Application) : AndroidViewModel(applica
                 is MoviesState.Empty -> movieState
                 is MoviesState.Error -> movieState
                 is MoviesState.Loading -> movieState
-            }
-        }
-    }
-
-
+            }}}
 
     fun searchDebounce(changedText: String) {
-        if (latestSearchText == changedText) {
-            return
-        }
+        if (latestSearchText == changedText) {return}
 
         this.latestSearchText = changedText
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
@@ -94,12 +68,7 @@ class MoviesSearchViewModel(application: Application) : AndroidViewModel(applica
         val searchRunnable = Runnable { searchRequest(changedText) }
 
         val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
-        handler.postAtTime(
-            searchRunnable,
-            SEARCH_REQUEST_TOKEN,
-            postTime,
-        )
-    }
+        handler.postAtTime(searchRunnable, SEARCH_REQUEST_TOKEN, postTime)}
 
     private fun searchRequest(newSearchText: String) {
         if (newSearchText.isNotEmpty()) {
@@ -108,43 +77,25 @@ class MoviesSearchViewModel(application: Application) : AndroidViewModel(applica
             moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
                 override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
                     val movies = mutableListOf<Movie>()
-                    if (foundMovies != null) {
-                        movies.addAll(foundMovies)
-                    }
+                    if (foundMovies != null) {movies.addAll(foundMovies)}
 
                     when {
                         errorMessage != null -> {
                             renderState(
                                 MoviesState.Error(
                                     message = getApplication<Application>().getString(R.string.something_went_wrong),
-                                )
-                            )
-                            showToast.postValue(errorMessage)
-                        }
+                                ))
+                            showToast.postValue(errorMessage)}
 
                         movies.isEmpty() -> {
                             renderState(
                                 MoviesState.Empty(
                                     errorMessage = getApplication<Application>().getString(R.string.nothing_found),
-                                )
-                            )
-                        }
-
+                                ))}
                         else -> {
                             renderState(
                                 MoviesState.Content(
                                     movies = movies,
-                                )
-                            )
-                        }
-                    }
+                                ))}}}})}}
 
-                }
-            })
-        }
-    }
-
-    private fun renderState(state: MoviesState) {
-        stateLiveData.postValue(state)
-    }
-}
+    private fun renderState(state: MoviesState) {stateLiveData.postValue(state)}}
