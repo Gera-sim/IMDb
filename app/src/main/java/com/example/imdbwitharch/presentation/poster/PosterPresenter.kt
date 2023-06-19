@@ -1,6 +1,4 @@
-package com.example.imdbwitharch.presentation
-
-import com.example.imdbwitharch.ui.poster.PosterView
+package com.example.imdbwitharch.presentation.poster
 
 class PosterPresenter(private val view: PosterView, private val imageUrl: String) {
     fun onCreate() {

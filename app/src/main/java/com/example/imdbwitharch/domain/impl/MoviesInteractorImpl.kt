@@ -2,6 +2,7 @@ package com.example.imdbwitharch.domain.impl
 
 import com.example.imdbwitharch.domain.api.MoviesInteractor
 import com.example.imdbwitharch.domain.api.MoviesRepository
+import com.example.imdbwitharch.domain.models.Movie
 import com.example.imdbwitharch.util.Resource
 import java.util.concurrent.Executors
 
@@ -19,4 +20,13 @@ class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInt
             }
         }
     }
+
+    override fun addMovieToFavorites(movie: Movie) {
+        repository.addMovieToFavorites(movie)
+    }
+
+    override fun removeMovieFromFavorites(movie: Movie) {
+        repository.removeMovieFromFavorites(movie)
+    }
+
 }

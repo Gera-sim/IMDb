@@ -1,4 +1,4 @@
-package com.example.imdbwitharch.ui.poster
+package com.example.imdbwitharch.presentation.poster
 
 interface PosterView {
     fun setupPosterImage(url: String)

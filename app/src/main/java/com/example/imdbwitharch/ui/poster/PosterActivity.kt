@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.example.imdbwitharch.R
-import com.example.imdbwitharch.presentation.PosterPresenter
+import com.example.imdbwitharch.presentation.poster.PosterPresenter
+import com.example.imdbwitharch.presentation.poster.PosterView
 import com.example.imdbwitharch.util.Creator
 
 class PosterActivity : Activity(), PosterView {
